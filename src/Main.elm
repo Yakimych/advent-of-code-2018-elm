@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Basics exposing (max)
 import Browser
 import Html exposing (Attribute, Html, button, div, input, span, text)
 import Html.Attributes exposing (..)
@@ -121,10 +122,10 @@ view model =
                 |> List.map
                     (\p ->
                         rect
-                            [ x (p.x |> String.fromInt)
-                            , y (p.y |> String.fromInt)
-                            , Svg.Attributes.width "1"
-                            , Svg.Attributes.height "1"
+                            [ x ((toFloat p.x * model.zoom) |> String.fromFloat)
+                            , y ((toFloat p.y * model.zoom) |> String.fromFloat)
+                            , Svg.Attributes.width (Basics.max model.zoom 1 |> String.fromFloat)
+                            , Svg.Attributes.height (Basics.max model.zoom 1 |> String.fromFloat)
                             ]
                             []
                     )
