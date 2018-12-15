@@ -1,4 +1,4 @@
-module Points exposing (Point, testData)
+module Points exposing (Point, applyVelocity, testData)
 
 
 type alias Point =
@@ -7,6 +7,17 @@ type alias Point =
     , speedX : Int
     , speedY : Int
     }
+
+
+applyVelocity : Point -> Int -> Point
+applyVelocity point times =
+    { point | x = point.x + times, y = point.y + times }
+
+
+
+-- applyVelocityToAll : List Point -> Int -> List Point
+-- applyVelocityToAll points times =
+--     points |> List.map (\p -> applyVelocity p times)
 
 
 testData =
