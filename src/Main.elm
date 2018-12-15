@@ -5,7 +5,7 @@ import Browser
 import Html exposing (Attribute, Html, button, div, input, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Points exposing (Point, applyVelocity, testData)
+import Points exposing (Point, applyVelocity, realData, testData)
 import Svg exposing (rect, svg)
 import Svg.Attributes exposing (..)
 
@@ -116,7 +116,7 @@ view model =
         , div [] [ text ("Current zoom level: " ++ String.fromFloat model.zoom) ]
         , button [ onClick DecreaseZoom ] [ text "-" ]
         , button [ onClick IncreaseZoom ] [ text "+" ]
-        , div [] [ text (model.currentPoints |> List.length |> String.fromInt) ]
+        , div [] [ text ("Number of points: " ++ (model.currentPoints |> List.length |> String.fromInt)) ]
         , svg [ Svg.Attributes.width "1200", Svg.Attributes.height "1200", viewBox "0 0 1200 1200" ]
             (model.currentPoints
                 |> List.map
