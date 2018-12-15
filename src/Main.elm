@@ -4,6 +4,7 @@ import Browser
 import Html exposing (Attribute, Html, button, div, input, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
+import Points exposing (Point, testData)
 
 
 main =
@@ -19,12 +20,13 @@ type alias Model =
     { stepSizeString : String
     , stepSize : Int
     , currentIteration : Int
+    , currentPoints : List Point
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { stepSizeString = "1", stepSize = 1, currentIteration = 0 }, Cmd.none )
+    ( { stepSizeString = "1", stepSize = 1, currentIteration = 0, currentPoints = testData }, Cmd.none )
 
 
 type Msg
@@ -63,6 +65,7 @@ view model =
         , div [] [ text ("Current iteration: " ++ String.fromInt model.currentIteration) ]
         , button [ onClick Previous ] [ text "Prev" ]
         , button [ onClick Next ] [ text "Next" ]
+        , div [] [ text (model.currentPoints |> List.length |> String.fromInt) ]
         ]
 
 
