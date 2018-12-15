@@ -1,4 +1,4 @@
-module Points exposing (Point, applyVelocity, firstMinIteration, realData, testData)
+module Day10Points exposing (Point, applyVelocity, firstMinIteration, realData, testData)
 
 
 type alias Point =
@@ -14,13 +14,30 @@ applyVelocity point times =
     { point | x = point.x + point.speedX * times, y = point.y + point.speedY * times }
 
 
+minMaxX : List Point -> ( Int, Int )
+minMaxX points =
+    List.foldl
+        (\p ( min, max ) ->
+            if p.x > max then
+                ( min, p.x )
+
+            else if p.x < min then
+                ( p.x, max )
+
+            else
+                ( min, max )
+        )
+        ( 1000000, -1000000 )
+        points
+
+
 getSpreadX : List Point -> Int
 getSpreadX points =
     let
-        xs =
-            points |> List.map (\p -> p.x)
+        ( min, max ) =
+            points |> minMaxX
     in
-    (List.maximum xs |> Maybe.withDefault 0) - (List.minimum xs |> Maybe.withDefault 0)
+    max - min
 
 
 firstMinIteration : List Point -> Int

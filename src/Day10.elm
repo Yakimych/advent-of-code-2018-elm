@@ -1,11 +1,11 @@
-module Main exposing (main)
+module Day10 exposing (main)
 
 import Basics exposing (max)
 import Browser
+import Day10Points exposing (Point, applyVelocity, firstMinIteration, realData, testData)
 import Html exposing (Attribute, Html, button, div, input, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Points exposing (Point, applyVelocity, firstMinIteration, realData, testData)
 import Svg exposing (rect, svg)
 import Svg.Attributes exposing (..)
 
@@ -31,16 +31,24 @@ type alias Model =
     }
 
 
+initialStepSize =
+    1
+
+
+initialSearchIterations =
+    1200
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     let
         initialData =
             realData
     in
-    ( { stepSizeString = "1"
-      , stepSize = 1
-      , searchIterationsString = "12000"
-      , searchIterations = 12000
+    ( { stepSizeString = initialStepSize |> String.fromInt
+      , stepSize = initialStepSize
+      , searchIterationsString = initialSearchIterations |> String.fromInt
+      , searchIterations = initialSearchIterations
       , currentIteration = 0
       , initialPoints = initialData
       , currentPoints = initialData
@@ -60,11 +68,15 @@ type Msg
     | DecreaseZoom
 
 
-updateWithIteration : Model -> Int -> Model
-updateWithIteration model iteration =
+updateIteration : Model -> Int -> Model
+updateIteration model step =
+    let
+        newIteration =
+            model.currentIteration + step
+    in
     { model
-        | currentIteration = iteration
-        , currentPoints = model.initialPoints |> List.map (\p -> applyVelocity p iteration)
+        | currentIteration = newIteration
+        , currentPoints = model.initialPoints |> List.map (\p -> applyVelocity p newIteration)
     }
 
 
@@ -72,24 +84,12 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Next ->
-            let
-                newIteration =
-                    model.currentIteration + model.stepSize
-            in
-            ( updateWithIteration model newIteration, Cmd.none )
+            ( updateIteration model model.stepSize, Cmd.none )
 
         Previous ->
-            let
-                newIteration =
-                    model.currentIteration - model.stepSize
-            in
-            ( updateWithIteration model newIteration, Cmd.none )
+            ( updateIteration model -model.stepSize, Cmd.none )
 
         ChangeStepSize newStepSizeString ->
-            let
-                parsedStepSize =
-                    String.toInt newStepSizeString
-            in
             ( { model
                 | stepSizeString = newStepSizeString
                 , stepSize = String.toInt newStepSizeString |> Maybe.withDefault model.stepSize
@@ -98,19 +98,15 @@ update msg model =
             )
 
         ChangeSearchIterations newSearchIterationsString ->
-            let
-                parsedSearchedIterations =
-                    String.toInt newSearchIterationsString
-            in
             ( { model
                 | searchIterationsString = newSearchIterationsString
-                , searchIterations = String.toInt newSearchIterationsString |> Maybe.withDefault 12000
+                , searchIterations = String.toInt newSearchIterationsString |> Maybe.withDefault initialSearchIterations
               }
             , Cmd.none
             )
 
         Search ->
-            ( updateWithIteration model (firstMinIteration model.initialPoints), Cmd.none )
+            ( updateIteration model (firstMinIteration model.initialPoints - model.currentIteration), Cmd.none )
 
         IncreaseZoom ->
             if model.zoom >= 1 then
@@ -146,7 +142,7 @@ view model =
         , button [ onClick DecreaseZoom ] [ text "-" ]
         , button [ onClick IncreaseZoom ] [ text "+" ]
         , div [] [ text ("Number of points: " ++ (model.currentPoints |> List.length |> String.fromInt)) ]
-        , svg [ Svg.Attributes.width "1200", Svg.Attributes.height "1200", viewBox "0 0 1200 1200" ]
+        , svg [ Svg.Attributes.width "1000", Svg.Attributes.height "1000", viewBox "0 0 1000 1000" ]
             (model.currentPoints
                 |> List.map
                     (\p ->
