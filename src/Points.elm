@@ -1,4 +1,4 @@
-module Points exposing (Point, applyVelocity, realData, testData)
+module Points exposing (Point, applyVelocity, firstMinIteration, realData, testData)
 
 
 type alias Point =
@@ -12,6 +12,33 @@ type alias Point =
 applyVelocity : Point -> Int -> Point
 applyVelocity point times =
     { point | x = point.x + point.speedX * times, y = point.y + point.speedY * times }
+
+
+getSpreadX : List Point -> Int
+getSpreadX points =
+    let
+        xs =
+            points |> List.map (\p -> p.x)
+    in
+    (List.maximum xs |> Maybe.withDefault 0) - (List.minimum xs |> Maybe.withDefault 0)
+
+
+firstMinIteration : List Point -> Int
+firstMinIteration points =
+    firstMinIterationRec points 1 (getSpreadX points)
+
+
+firstMinIterationRec : List Point -> Int -> Int -> Int
+firstMinIterationRec points iteration prevSpread =
+    let
+        spread =
+            getSpreadX (points |> List.map (\p -> applyVelocity p iteration))
+    in
+    if spread > prevSpread then
+        iteration - 1
+
+    else
+        firstMinIterationRec points (iteration + 1) spread
 
 
 testData =

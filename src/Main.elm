@@ -5,7 +5,7 @@ import Browser
 import Html exposing (Attribute, Html, button, div, input, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Points exposing (Point, applyVelocity, realData, testData)
+import Points exposing (Point, applyVelocity, firstMinIteration, realData, testData)
 import Svg exposing (rect, svg)
 import Svg.Attributes exposing (..)
 
@@ -22,6 +22,8 @@ main =
 type alias Model =
     { stepSizeString : String
     , stepSize : Int
+    , searchIterationsString : String
+    , searchIterations : Int
     , currentIteration : Int
     , initialPoints : List Point
     , currentPoints : List Point
@@ -31,11 +33,17 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
+    let
+        initialData =
+            realData
+    in
     ( { stepSizeString = "1"
       , stepSize = 1
+      , searchIterationsString = "12000"
+      , searchIterations = 12000
       , currentIteration = 0
-      , initialPoints = testData
-      , currentPoints = testData
+      , initialPoints = initialData
+      , currentPoints = initialData
       , zoom = 1
       }
     , Cmd.none
@@ -46,6 +54,8 @@ type Msg
     = Next
     | Previous
     | ChangeStepSize String
+    | ChangeSearchIterations String
+    | Search
     | IncreaseZoom
     | DecreaseZoom
 
@@ -87,6 +97,21 @@ update msg model =
             , Cmd.none
             )
 
+        ChangeSearchIterations newSearchIterationsString ->
+            let
+                parsedSearchedIterations =
+                    String.toInt newSearchIterationsString
+            in
+            ( { model
+                | searchIterationsString = newSearchIterationsString
+                , searchIterations = String.toInt newSearchIterationsString |> Maybe.withDefault 12000
+              }
+            , Cmd.none
+            )
+
+        Search ->
+            ( updateWithIteration model (firstMinIteration model.initialPoints), Cmd.none )
+
         IncreaseZoom ->
             if model.zoom >= 1 then
                 ( { model | zoom = model.zoom + 1 }, Cmd.none )
@@ -108,8 +133,12 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ input [ value model.stepSizeString, onInput ChangeStepSize ] []
-        , span [] [ text (String.fromInt model.stepSize) ]
+        [ div []
+            [ input [ value model.searchIterationsString, onInput ChangeSearchIterations ] []
+            , button [ onClick Search ] [ text "Search" ]
+            ]
+        , input [ value model.stepSizeString, onInput ChangeStepSize ] []
+        , span [] [ text ("Step: " ++ String.fromInt model.stepSize) ]
         , div [] [ text ("Current iteration: " ++ String.fromInt model.currentIteration) ]
         , button [ onClick Previous ] [ text "Prev" ]
         , button [ onClick Next ] [ text "Next" ]
