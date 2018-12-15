@@ -26,7 +26,6 @@ type alias Model =
     , searchIterations : Int
     , currentIteration : Int
     , initialPoints : List Point
-    , currentPoints : List Point
     , zoom : Float
     }
 
@@ -51,7 +50,6 @@ init _ =
       , searchIterations = initialSearchIterations
       , currentIteration = 0
       , initialPoints = initialData
-      , currentPoints = initialData
       , zoom = 1
       }
     , Cmd.none
@@ -68,26 +66,14 @@ type Msg
     | DecreaseZoom
 
 
-updateIteration : Model -> Int -> Model
-updateIteration model step =
-    let
-        newIteration =
-            model.currentIteration + step
-    in
-    { model
-        | currentIteration = newIteration
-        , currentPoints = model.initialPoints |> List.map (\p -> applyVelocity p newIteration)
-    }
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Next ->
-            ( updateIteration model model.stepSize, Cmd.none )
+            ( { model | currentIteration = model.currentIteration + model.stepSize }, Cmd.none )
 
         Previous ->
-            ( updateIteration model -model.stepSize, Cmd.none )
+            ( { model | currentIteration = model.currentIteration - model.stepSize }, Cmd.none )
 
         ChangeStepSize newStepSizeString ->
             ( { model
@@ -106,7 +92,7 @@ update msg model =
             )
 
         Search ->
-            ( updateIteration model (firstMinIteration model.initialPoints - model.currentIteration), Cmd.none )
+            ( { model | currentIteration = firstMinIteration model.initialPoints }, Cmd.none )
 
         IncreaseZoom ->
             if model.zoom >= 1 then
@@ -129,14 +115,17 @@ update msg model =
 view : Model -> Html Msg
 view model =
     let
+        currentPoints =
+            model.initialPoints |> List.map (\p -> applyVelocity p model.currentIteration)
+
         leftMostX =
-            model.currentPoints
+            currentPoints
                 |> List.map (\p -> p.x)
                 |> List.minimum
                 |> Maybe.withDefault 0
 
         topMostY =
-            model.currentPoints
+            currentPoints
                 |> List.map (\p -> p.y)
                 |> List.minimum
                 |> Maybe.withDefault 0
@@ -154,9 +143,9 @@ view model =
         , div [] [ text ("Current zoom level: " ++ String.fromFloat model.zoom) ]
         , button [ onClick DecreaseZoom ] [ text "-" ]
         , button [ onClick IncreaseZoom ] [ text "+" ]
-        , div [] [ text ("Number of points: " ++ (model.currentPoints |> List.length |> String.fromInt)) ]
+        , div [] [ text ("Number of points: " ++ (currentPoints |> List.length |> String.fromInt)) ]
         , svg [ Svg.Attributes.width "1000", Svg.Attributes.height "1000", viewBox "0 0 1000 1000" ]
-            (model.currentPoints
+            (currentPoints
                 |> List.map
                     (\p ->
                         rect
