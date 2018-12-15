@@ -11,7 +11,7 @@ type alias Point =
 
 applyVelocity : Point -> Int -> Point
 applyVelocity point times =
-    { point | x = point.x + times, y = point.y + times }
+    { point | x = point.x + point.speedX * times, y = point.y + point.speedY * times }
 
 
 

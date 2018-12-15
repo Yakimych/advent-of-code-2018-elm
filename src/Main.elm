@@ -5,6 +5,8 @@ import Html exposing (Attribute, Html, button, div, input, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Points exposing (Point, applyVelocity, testData)
+import Svg exposing (rect, svg)
+import Svg.Attributes exposing (..)
 
 
 main =
@@ -90,6 +92,19 @@ view model =
         , button [ onClick Previous ] [ text "Prev" ]
         , button [ onClick Next ] [ text "Next" ]
         , div [] [ text (model.currentPoints |> List.length |> String.fromInt) ]
+        , svg [ Svg.Attributes.width "1200", Svg.Attributes.height "1200", viewBox "0 0 1200 1200" ]
+            (model.currentPoints
+                |> List.map
+                    (\p ->
+                        rect
+                            [ x (p.x |> String.fromInt)
+                            , y (p.y |> String.fromInt)
+                            , Svg.Attributes.width "1"
+                            , Svg.Attributes.height "1"
+                            ]
+                            []
+                    )
+            )
         ]
 
 
