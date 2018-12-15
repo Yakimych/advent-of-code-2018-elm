@@ -24,6 +24,7 @@ type alias Model =
     , currentIteration : Int
     , initialPoints : List Point
     , currentPoints : List Point
+    , zoom : Float
     }
 
 
@@ -34,6 +35,7 @@ init _ =
       , currentIteration = 0
       , initialPoints = testData
       , currentPoints = testData
+      , zoom = 1
       }
     , Cmd.none
     )
@@ -43,6 +45,8 @@ type Msg
     = Next
     | Previous
     | ChangeStepSize String
+    | IncreaseZoom
+    | DecreaseZoom
 
 
 updateWithIteration : Model -> Int -> Model
@@ -82,6 +86,23 @@ update msg model =
             , Cmd.none
             )
 
+        IncreaseZoom ->
+            if model.zoom >= 1 then
+                ( { model | zoom = model.zoom + 1 }, Cmd.none )
+
+            else if model.zoom >= 0.5 then
+                ( { model | zoom = 1 }, Cmd.none )
+
+            else
+                ( { model | zoom = model.zoom * 2 }, Cmd.none )
+
+        DecreaseZoom ->
+            if model.zoom > 1 then
+                ( { model | zoom = model.zoom - 1 }, Cmd.none )
+
+            else
+                ( { model | zoom = model.zoom / 2 }, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
@@ -91,6 +112,9 @@ view model =
         , div [] [ text ("Current iteration: " ++ String.fromInt model.currentIteration) ]
         , button [ onClick Previous ] [ text "Prev" ]
         , button [ onClick Next ] [ text "Next" ]
+        , div [] [ text ("Current zoom level: " ++ String.fromFloat model.zoom) ]
+        , button [ onClick DecreaseZoom ] [ text "-" ]
+        , button [ onClick IncreaseZoom ] [ text "+" ]
         , div [] [ text (model.currentPoints |> List.length |> String.fromInt) ]
         , svg [ Svg.Attributes.width "1200", Svg.Attributes.height "1200", viewBox "0 0 1200 1200" ]
             (model.currentPoints
