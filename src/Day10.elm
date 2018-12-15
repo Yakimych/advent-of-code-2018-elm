@@ -128,6 +128,19 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
+    let
+        leftMostX =
+            model.currentPoints
+                |> List.map (\p -> p.x)
+                |> List.minimum
+                |> Maybe.withDefault 0
+
+        topMostY =
+            model.currentPoints
+                |> List.map (\p -> p.y)
+                |> List.minimum
+                |> Maybe.withDefault 0
+    in
     div []
         [ div []
             [ input [ value model.searchIterationsString, onInput ChangeSearchIterations ] []
@@ -147,8 +160,8 @@ view model =
                 |> List.map
                     (\p ->
                         rect
-                            [ x ((toFloat p.x * model.zoom) |> String.fromFloat)
-                            , y ((toFloat p.y * model.zoom) |> String.fromFloat)
+                            [ x ((toFloat (p.x - leftMostX) * model.zoom) |> String.fromFloat)
+                            , y ((toFloat (p.y - topMostY) * model.zoom) |> String.fromFloat)
                             , Svg.Attributes.width (Basics.max model.zoom 1 |> String.fromFloat)
                             , Svg.Attributes.height (Basics.max model.zoom 1 |> String.fromFloat)
                             ]
