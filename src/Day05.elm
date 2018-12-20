@@ -42,7 +42,7 @@ type Msg
 
 willDestruct : Char -> Char -> Bool
 willDestruct c1 c2 =
-    (Char.toUpper c1 == c2) || (Char.toUpper c2 == c1)
+    ((Char.toUpper c1 == c2) || (Char.toUpper c2 == c1)) && c1 /= c2
 
 
 reduceFunc : Char -> List Char -> List Char
