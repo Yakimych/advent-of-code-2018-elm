@@ -2,7 +2,7 @@ module Day05 exposing (main)
 
 import Basics exposing (max)
 import Browser
-import Day05Input exposing (realInput, testInput)
+import Day05Input exposing (realInput, testInput, testInput2)
 import Html exposing (Attribute, Html, button, div, input, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -45,45 +45,28 @@ willDestruct c1 c2 =
     (Char.toUpper c1 == c2) || (Char.toUpper c2 == c1)
 
 
-removePair : List Char -> List Char
-removePair str =
-    case str of
+reduceFunc : Char -> List Char -> List Char
+reduceFunc c processedStr =
+    case processedStr of
         [] ->
-            str
+            [ c ]
 
-        [ _ ] ->
-            str
-
-        [ _, _ ] ->
-            str
-
-        c1 :: c2 :: rest ->
-            if willDestruct c1 c2 then
-                rest
+        x :: xs ->
+            if willDestruct x c then
+                xs
 
             else
-                str
+                c :: processedStr
 
 
 processString : List Char -> List Char
-processString charList =
-    case charList of
+processString chars =
+    case chars of
         [] ->
-            charList
+            chars
 
-        [ _ ] ->
-            charList
-
-        c1 :: rest ->
-            let
-                clippedList =
-                    removePair charList
-            in
-            if String.fromList charList == String.fromList clippedList then
-                c1 :: processString rest
-
-            else
-                processString clippedList
+        _ ->
+            chars |> List.foldl reduceFunc [] |> List.reverse
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -101,14 +84,12 @@ view : Model -> Html Msg
 view model =
     div []
         [ button [ onClick CalculateResult ] [ text "Calculate" ]
+        , div [] [ text model.inputString ]
         , div []
-            [ text
-                ("Length: "
-                    ++ (model.result |> String.length |> String.fromInt)
-                    ++ " string: "
-                    ++ model.result
-                )
+            [ text model.result
             ]
+        , div []
+            [ text ("Length: " ++ (model.result |> String.length |> String.fromInt)) ]
         ]
 
 
