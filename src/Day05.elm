@@ -8,6 +8,11 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 
 
+letters : List Char
+letters =
+    "abcdefghijklmnopqrstuvwxyz" |> String.toList
+
+
 main =
     Browser.element
         { init = init
@@ -19,7 +24,8 @@ main =
 
 type alias Model =
     { inputString : String
-    , result : String
+    , result1 : String
+    , result2 : Int
     }
 
 
@@ -30,14 +36,16 @@ init _ =
             realInput
     in
     ( { inputString = initialData
-      , result = ""
+      , result1 = ""
+      , result2 = -1
       }
     , Cmd.none
     )
 
 
 type Msg
-    = CalculateResult
+    = CalculateResult1
+    | CalculateResult2
 
 
 willDestruct : Char -> Char -> Bool
@@ -69,27 +77,53 @@ processString chars =
             chars |> List.foldl reduceFunc [] |> List.reverse
 
 
+withoutLetter : List Char -> Char -> List Char
+withoutLetter chars c =
+    chars |> List.filter (\char -> char /= c && char /= (c |> Char.toUpper))
+
+
+findBestCaseLength : List Char -> Int
+findBestCaseLength chars =
+    let
+        processedString =
+            processString chars
+    in
+    letters
+        |> List.map
+            (\l -> withoutLetter chars l |> processString |> List.length)
+        |> List.minimum
+        |> Maybe.withDefault -1
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        CalculateResult ->
+        CalculateResult1 ->
             let
                 processedString =
                     processString (model.inputString |> String.toList) |> String.fromList
             in
-            ( { model | result = processedString }, Cmd.none )
+            ( { model | result1 = processedString }, Cmd.none )
+
+        CalculateResult2 ->
+            ( { model | result2 = model.inputString |> String.toList |> findBestCaseLength }, Cmd.none )
 
 
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick CalculateResult ] [ text "Calculate" ]
+        [ button [ onClick CalculateResult1 ] [ text "Part 1" ]
         , div [] [ text model.inputString ]
         , div []
-            [ text model.result
+            [ text model.result1
             ]
         , div []
-            [ text ("Length: " ++ (model.result |> String.length |> String.fromInt)) ]
+            [ text ("Length: " ++ (model.result1 |> String.length |> String.fromInt)) ]
+        , button [ onClick CalculateResult2 ] [ text "Part 2" ]
+        , div [] [ text model.inputString ]
+        , div []
+            [ text (model.result2 |> String.fromInt)
+            ]
         ]
 
 
