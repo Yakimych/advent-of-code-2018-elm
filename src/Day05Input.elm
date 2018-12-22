@@ -1,12 +1,8 @@
-module Day05Input exposing (realInput, testInput, testInput2)
+module Day05Input exposing (realInput, testInput)
 
 
 testInput =
     "dabAcCaCBAcCcaDA"
-
-
-testInput2 =
-    "GaAvVPpgZvVrRMmQqHhzrRDddDkKyIiqJjFfrRS"
 
 
 realInput =
