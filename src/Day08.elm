@@ -3,6 +3,7 @@ module Day08 exposing (main)
 import Browser
 import Day08Input exposing (realInput, testInput)
 import Day08Logic exposing (calculateSum)
+import Debug exposing (log)
 import Html exposing (Attribute, Html, button, div, input, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -26,7 +27,7 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { inputList = testInput
+    ( { inputList = realInput
       , result1 = -1
       , result2 = -1
       }
